@@ -1,0 +1,31 @@
+# Flask核心
+Flask==3.0.0
+Flask-CORS==4.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+
+# 数据库
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9  # PostgreSQL支持
+sqlite3  # SQLite支持（Python内置）
+
+# 对象存储
+coze-coding-dev-sdk>=1.0.0  # S3兼容存储SDK
+
+# 文件处理
+Werkzeug==3.0.1  # 文件上传处理
+python-multipart==0.0.6  # 文件上传支持
+
+# 工具库
+python-dotenv==1.0.0  # 环境变量管理
+PyJWT==2.8.0  # JWT认证（可选）
+bcrypt==4.1.2  # 密码加密（可选）
+
+# 日期时间
+python-dateutil==2.8.2
+
+# 阿里云函数计算支持
+flask-lambda==0.1.0  # 适配阿里云函数计算
+
+# 开发工具
+pytest==7.4.3  # 测试框架（可选）

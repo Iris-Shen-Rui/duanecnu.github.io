@@ -1,0 +1,379 @@
+/* ===== 响应式设计 ===== */
+
+/* 平板设备 (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .meetings-grid,
+    .members-grid,
+    .resources-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+/* 移动设备 (max-width: 768px) */
+@media (max-width: 768px) {
+    /* 头部导航 */
+    .nav-menu {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--card-background);
+        flex-direction: column;
+        padding: 16px;
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+    }
+    
+    .nav-menu.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .nav-item {
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+    }
+    
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
+    .mobile-menu-btn.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+    
+    .mobile-menu-btn.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .mobile-menu-btn.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+    
+    /* 首页 */
+    .hero {
+        padding: 32px 16px;
+    }
+    
+    .hero h2 {
+        font-size: 24px;
+    }
+    
+    .hero p {
+        font-size: 14px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+    }
+    
+    .stat-icon {
+        font-size: 32px;
+    }
+    
+    .stat-content h3 {
+        font-size: 24px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 页面头部 */
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+    
+    .page-header h2 {
+        font-size: 20px;
+    }
+    
+    /* 筛选器 */
+    .filters {
+        flex-direction: column;
+    }
+    
+    .filters select,
+    .filters input {
+        width: 100%;
+        max-width: none;
+    }
+    
+    /* 卡片网格 */
+    .meetings-grid,
+    .members-grid,
+    .resources-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    /* 标签页 */
+    .summary-tabs,
+    .resource-categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .summary-tabs::-webkit-scrollbar,
+    .resource-categories::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .tab-btn,
+    .category-btn {
+        flex-shrink: 0;
+    }
+    
+    /* 模态框 */
+    .modal {
+        width: 95%;
+        max-height: 85vh;
+        padding: 20px;
+        margin: 16px;
+    }
+    
+    .modal-header h3 {
+        font-size: 18px;
+    }
+    
+    /* 表单 */
+    .feedback-form-container {
+        padding: 20px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* 防止iOS自动缩放 */
+    }
+    
+    /* 按钮 */
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .card-footer {
+        flex-direction: column;
+    }
+    
+    .card-footer button {
+        width: 100%;
+    }
+    
+    /* Toast */
+    .toast {
+        left: 16px;
+        right: 16px;
+        top: auto;
+        bottom: 20px;
+    }
+}
+
+/* 小屏手机 (max-width: 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 16px;
+    }
+    
+    .header-container {
+        padding: 0 16px;
+        height: 56px;
+    }
+    
+    .logo h1 {
+        font-size: 18px;
+    }
+    
+    .logo .subtitle {
+        font-size: 11px;
+    }
+    
+    .main-content {
+        padding-top: 16px;
+        padding-bottom: 32px;
+    }
+    
+    .hero {
+        padding: 24px 12px;
+    }
+    
+    .hero h2 {
+        font-size: 20px;
+    }
+    
+    .quick-actions,
+    .recent-activity {
+        padding: 16px;
+    }
+    
+    .quick-actions h3,
+    .recent-activity h3 {
+        font-size: 16px;
+    }
+    
+    .activity-item {
+        padding: 10px;
+    }
+    
+    .activity-icon {
+        font-size: 20px;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+    
+    .card-title {
+        font-size: 15px;
+    }
+    
+    .footer {
+        padding: 16px 0;
+    }
+    
+    .footer p {
+        font-size: 12px;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .header,
+    .footer,
+    .mobile-menu-btn,
+    .primary-btn,
+    .secondary-btn,
+    .filters,
+    .card-footer {
+        display: none !important;
+    }
+    
+    .main-content {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    .page {
+        display: block !important;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+        break-inside: avoid;
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000;
+        --text-secondary: #000;
+    }
+    
+    .card,
+    .modal,
+    .toast {
+        border: 2px solid var(--border-color);
+    }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 暗色模式支持 (可选) */
+@media (prefers-color-scheme: dark) {
+    /* 如需支持暗色模式，可在此添加样式 */
+    /* 目前保持亮色主题 */
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .nav-item {
+        padding: 12px 16px;
+    }
+    
+    .action-btn,
+    .tab-btn,
+    .category-btn {
+        min-height: 48px;
+    }
+    
+    input,
+    select,
+    textarea {
+        font-size: 16px; /* 防止iOS自动缩放 */
+    }
+}
+
+/* 横屏模式下的移动设备 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        padding: 16px;
+    }
+    
+    .hero h2 {
+        font-size: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-icon {
+        font-size: 24px;
+    }
+    
+    .stat-content h3 {
+        font-size: 20px;
+    }
+}
+
+/* 超宽屏幕 */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .meetings-grid,
+    .members-grid,
+    .resources-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
