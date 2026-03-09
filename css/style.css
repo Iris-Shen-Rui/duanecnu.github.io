@@ -1,16 +1,16 @@
 /* ===== 全局样式 ===== */
 :root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --secondary-color: #64748b;
+    --primary-color: #B22222;
+    --primary-hover: #8B0000;
+    --secondary-color: #A9A9A9;
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
-    --background-color: #f8fafc;
+    --background-color: #F5F5F5;
     --card-background: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --border-color: #D3D3D3;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -141,7 +141,7 @@ body {
 .hero {
     text-align: center;
     padding: 48px 20px;
-    background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+    background: linear-gradient(135deg, var(--primary-color), #8B0000);
     color: white;
     border-radius: var(--radius-lg);
     margin-bottom: 32px;
@@ -198,6 +198,18 @@ body {
 .quick-actions {
     background: var(--card-background);
     padding: 24px;
+}
+
+/* 简化反馈页面样式 */
+.feedback-message {
+    padding: 24px 0;
+    color: var(--text-primary);
+}
+
+.feedback-message p {
+    margin-bottom: 16px;
+    font-size: 16px;
+
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     margin-bottom: 32px;
