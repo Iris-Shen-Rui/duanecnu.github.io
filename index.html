@@ -1,262 +1,411 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="华东师范大学段门课题组内部管理系统">
-    <title>段门课题组 - 内部管理系统</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>段门内部网站</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 </head>
 <body>
-    <!-- 顶部导航栏 -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <h1>段门课题组</h1>
-                <span class="subtitle">华东师范大学</span>
-            </div>
-            <nav class="nav-menu" id="navMenu">
-                <a href="#" class="nav-item active" data-page="home">
-                    <span class="icon">🏠</span>
-                    <span>首页</span>
-                </a>
-                <a href="#" class="nav-item" data-page="meetings">
-                    <span class="icon">📅</span>
-                    <span>组会报告</span>
-                </a>
-                <a href="#" class="nav-item" data-page="summaries">
-                    <span class="icon">📊</span>
-                    <span>学期总结</span>
-                </a>
-                <a href="#" class="nav-item" data-page="members">
-                    <span class="icon">👥</span>
-                    <span>成员管理</span>
-                </a>
-                <a href="#" class="nav-item" data-page="resources">
-                    <span class="icon">📚</span>
-                    <span>资源汇总</span>
-                </a>
-                <a href="#" class="nav-item" data-page="feedback">
-                    <span class="icon">💬</span>
-                    <span>反馈建议</span>
-                </a>
-            </nav>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">🎓</div>
+        <div class="logo-text">
+          <h1>段门内部网站</h1>
+          <p>华东师范大学</p>
         </div>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <ul>
+        <li data-tab="overview" class="active">
+          <i class='bx bx-home'></i>
+          <span>功能总览</span>
+        </li>
+        <li data-tab="meetings">
+          <i class='bx bx-folder'></i>
+          <span>组会报告</span>
+        </li>
+        <li data-tab="semester">
+          <i class='bx bx-calendar'></i>
+          <span>学期总结</span>
+        </li>
+        <li data-tab="feedback">
+          <i class='bx bx-message-square-detail'></i>
+          <span>反馈建议</span>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-left">
+        <h2 class="page-title">功能总览</h2>
+        <div class="semester-badge">2025-2026学年第二学期</div>
+      </div>
+      <div class="header-right">
+        <div class="user-info" id="user-info">
+          <div class="user-avatar">👤</div>
+          <div class="user-details">
+            <div class="user-name">游客</div>
+            <div class="user-role">未登录</div>
+          </div>
+          <button class="btn-logout" id="logout-btn" style="display:none;">
+            <i class='bx bx-log-out'></i>
+          </button>
+          <button class="btn-login" id="login-btn">🔒 登录</button>
+        </div>
+      </div>
     </header>
 
-    <!-- 主内容区域 -->
-    <main class="main-content" id="mainContent">
-        <!-- 首页内容 -->
-        <div id="homePage" class="page active">
-            <div class="container">
-                <div class="hero">
-                    <h2>欢迎来到段门课题组</h2>
-                    <p>华东师范大学内部管理系统</p>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📅</div>
-                        <div class="stat-content">
-                            <h3 id="meetingCount">0</h3>
-                            <p>组会总数</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
-                        <div class="stat-content">
-                            <h3 id="memberCount">0</h3>
-                            <p>成员数量</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📄</div>
-                        <div class="stat-content">
-                            <h3 id="submissionCount">0</h3>
-                            <p>提交报告</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📚</div>
-                        <div class="stat-content">
-                            <h3 id="resourceCount">0</h3>
-                            <p>资源总数</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="quick-actions">
-                    <h3>快速操作</h3>
-                    <div class="action-buttons">
-                        <button class="action-btn" onclick="navigateTo('meetings')">
-                            <span class="icon">➕</span>
-                            <span>提交组会报告</span>
-                        </button>
-                        <button class="action-btn" onclick="navigateTo('summaries')">
-                            <span class="icon">📝</span>
-                            <span>填写学期总结</span>
-                        </button>
-                        <button class="action-btn" onclick="navigateTo('resources')">
-                            <span class="icon">🔍</span>
-                            <span>查找资源</span>
-                        </button>
-                        <button class="action-btn" onclick="navigateTo('feedback')">
-                            <span class="icon">💬</span>
-                            <span>反馈建议</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="recent-activity">
-                    <h3>最近动态</h3>
-                    <div class="activity-list" id="recentActivity">
-                        <!-- 动态内容将通过JS加载 -->
-                    </div>
-                </div>
+    <!-- Tab Content -->
+    <main class="content-container">
+      <!-- Overview Tab -->
+      <section id="tab-overview" class="tab-content active">
+        <!-- Welcome Section -->
+        <div class="card">
+          <h3 class="card-title">欢迎使用段门内部网站</h3>
+          <div class="quick-nav-grid">
+            <div class="quick-nav-item" data-tab-target="meetings">
+              <div class="icon-box bg-red-100 text-red-600">
+                <i class='bx bx-folder'></i>
+              </div>
+              <h4>组会报告</h4>
+              <p>管理文献汇报材料</p>
             </div>
+            <div class="quick-nav-item" data-tab-target="semester">
+              <div class="icon-box bg-red-100 text-red-600">
+                <i class='bx bx-calendar'></i>
+              </div>
+              <h4>学期总结</h4>
+              <p>提交和查看学期成果</p>
+            </div>
+            <div class="quick-nav-item" data-tab-target="feedback">
+              <div class="icon-box bg-red-100 text-red-600">
+                <i class='bx bx-message-square-detail'></i>
+              </div>
+              <h4>反馈建议</h4>
+              <p>联系管理员</p>
+            </div>
+          </div>
         </div>
 
-        <!-- 组会报告页面 -->
-        <div id="meetingsPage" class="page">
-            <div class="container">
-                <div class="page-header">
-                    <h2>组会报告管理</h2>
-                    <button class="primary-btn" onclick="showCreateMeetingModal()">
-                        <span>➕</span> 创建组会
-                    </button>
-                </div>
-
-                <div class="filters">
-                    <select id="meetingFilter" onchange="filterMeetings()">
-                        <option value="all">全部</option>
-                        <option value="upcoming">即将召开</option>
-                        <option value="past">历史会议</option>
-                    </select>
-                    <input type="text" id="meetingSearch" placeholder="搜索会议..." onkeyup="searchMeetings()">
-                </div>
-
-                <div class="meetings-grid" id="meetingsGrid">
-                    <!-- 会议卡片将通过JS加载 -->
-                </div>
+        <!-- Resource Summary -->
+        <div class="card">
+          <h3 class="card-title">资源汇总与导航</h3>
+          
+          <div class="search-section">
+            <div class="search-box">
+              <i class='bx bx-search'></i>
+              <input type="text" id="literature-search" placeholder="搜索内部精选文献...">
             </div>
+            <button class="btn-primary" id="clear-search">全部文献</button>
+          </div>
+          
+          <div class="tag-cloud">
+            <h4>文献标签云</h4>
+            <div id="tag-container" class="tag-container">
+              <!-- Tags dynamically inserted by JS -->
+            </div>
+          </div>
+          
+          <div class="literature-list">
+            <h4>精选文献列表 <span id="literature-count">(5 篇)</span></h4>
+            <div id="literature-container" class="literature-container">
+              <!-- Literature items dynamically inserted -->
+            </div>
+          </div>
         </div>
 
-        <!-- 学期总结页面 -->
-        <div id="summariesPage" class="page">
-            <div class="container">
-                <div class="page-header">
-                    <h2>学期总结</h2>
-                    <button class="primary-btn" onclick="showCreateSummaryModal()">
-                        <span>➕</span> 新建总结
-                    </button>
-                </div>
-
-                <div class="summary-tabs">
-                    <button class="tab-btn active" data-tab="papers">论文发表</button>
-                    <button class="tab-btn" data-tab="submissions">投稿中</button>
-                    <button class="tab-btn" data-tab="articles">公众号文章</button>
-                    <button class="tab-btn" data-tab="literature">文献阅读</button>
-                    <button class="tab-btn" data-tab="theory">理论构念</button>
-                </div>
-
-                <div class="summary-content" id="summaryContent">
-                    <!-- 总结内容将通过JS加载 -->
-                </div>
+        <!-- Statistics -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-red-100 text-red-600">
+              <i class='bx bxs-award'></i>
             </div>
-        </div>
-
-        <!-- 成员管理页面 -->
-        <div id="membersPage" class="page">
-            <div class="container">
-                <div class="page-header">
-                    <h2>成员管理</h2>
-                    <button class="primary-btn" onclick="showCreateMemberModal()">
-                        <span>➕</span> 添加成员
-                    </button>
-                </div>
-
-                <div class="member-filters">
-                    <select id="memberRoleFilter">
-                        <option value="all">全部身份</option>
-                        <option value="professor">教授</option>
-                        <option value="phd">博士生</option>
-                        <option value="master">硕士生</option>
-                        <option value="undergraduate">本科生</option>
-                    </select>
-                </div>
-
-                <div class="members-grid" id="membersGrid">
-                    <!-- 成员卡片将通过JS加载 -->
-                </div>
+            <div class="stat-content">
+              <div class="stat-value" id="published-count">2</div>
+              <div class="stat-label">已发表论文</div>
             </div>
-        </div>
-
-        <!-- 资源汇总页面 -->
-        <div id="resourcesPage" class="page">
-            <div class="container">
-                <div class="page-header">
-                    <h2>资源汇总</h2>
-                    <button class="primary-btn" onclick="showUploadResourceModal()">
-                        <span>➕</span> 上传资源
-                    </button>
-                </div>
-
-                <div class="resource-categories">
-                    <button class="category-btn active" data-category="all">全部</button>
-                    <button class="category-btn" data-category="literature">文献</button>
-                    <button class="category-btn" data-category="theory">理论构念</button>
-                    <button class="category-btn" data-category="tools">工具</button>
-                    <button class="category-btn" data-category="other">其他</button>
-                </div>
-
-                <div class="resources-grid" id="resourcesGrid">
-                    <!-- 资源卡片将通过JS加载 -->
-                </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-blue-100 text-blue-600">
+              <i class='bx bx-trending-up'></i>
             </div>
-        </div>
-
-        <!-- 反馈建议页面 -->
-        <div id="feedbackPage" class="page">
-            <div class="container">
-                <div class="page-header">
-                    <h2>反馈建议</h2>
-                </div>
-                <div class="feedback-message">
-                    <p>任何有关本网站的意见和建议，请邮件联系：<a href="mailto:rui_shen_iris@163.com">rui_shen_iris@163.com</a></p>
-                    <p>十分欢迎同门师兄弟姐妹们一起来参与网站的改进升级！</p>
-                </div>
+            <div class="stat-content">
+              <div class="stat-value" id="submitted-count">2</div>
+              <div class="stat-label">新投稿论文</div>
             </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green-100 text-green-600">
+              <i class='bx bx-news'></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value" id="science-count">1</div>
+              <div class="stat-label">科普文章</div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- Meetings Tab -->
+      <section id="tab-meetings" class="tab-content">
+        <div class="card">
+          <div class="section-header">
+            <h3 class="card-title">组会历史记录</h3>
+            <button class="btn-primary" id="create-meeting-btn">
+              <i class='bx bx-plus'></i> 创建新组会
+            </button>
+          </div>
+          
+          <div class="meetings-layout">
+            <!-- Recent Meetings -->
+            <div class="recent-meetings">
+              <div id="meetings-container" class="meetings-container">
+                <!-- Meetings dynamically inserted -->
+              </div>
+            </div>
+            
+            <!-- Calendar -->
+            <div class="calendar-card">
+              <div class="calendar-header">
+                <button id="prev-month">&lt;</button>
+                <div id="current-month">2026年1月</div>
+                <button id="next-month">&gt;</button>
+              </div>
+              
+              <div class="calendar-grid">
+                <div class="calendar-day-header">日</div>
+                <div class="calendar-day-header">一</div>
+                <div class="calendar-day-header">二</div>
+                <div class="calendar-day-header">三</div>
+                <div class="calendar-day-header">四</div>
+                <div class="calendar-day-header">五</div>
+                <div class="calendar-day-header">六</div>
+                <!-- Calendar days dynamically inserted -->
+                <div id="calendar-days" class="calendar-days"></div>
+              </div>
+              
+              <div class="calendar-controls">
+                <select id="year-select">
+                  <option value="2024">2024年</option>
+                  <option value="2025" selected>2025年</option>
+                  <option value="2026" selected>2026年</option>
+                  <option value="2027">2027年</option>
+                </select>
+                <select id="month-select">
+                  <option value="0">1月</option>
+                  <option value="1">2月</option>
+                  <option value="2">3月</option>
+                  <option value="3">4月</option>
+                  <option value="4">5月</option>
+                  <option value="5">6月</option>
+                  <option value="6">7月</option>
+                  <option value="7">8月</option>
+                  <option value="8">9月</option>
+                  <option value="9">10月</option>
+                  <option value="10">11月</option>
+                  <option value="11" selected>12月</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Selected Meeting Info -->
+          <div id="selected-meeting-info" class="selected-meeting-info hidden">
+            <div class="meeting-info-content">
+              <div>
+                <p class="meeting-date" id="selected-meeting-date">2026-01-20 - 俊秀楼313</p>
+                <p class="meeting-detail" id="selected-meeting-detail">汇报人: 张三 | 备注: 王教授分享最新研究成果</p>
+              </div>
+              <button class="btn-submit" id="submit-materials-btn">提交材料</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Submission Form (initially hidden) -->
+        <div id="submission-form" class="card hidden">
+          <h3 class="card-title">提交组会材料</h3>
+          
+          <div class="meeting-context">
+            <p id="submission-meeting-info">2026-01-20 - 俊秀楼313</p>
+            <p id="submission-presenter-info">汇报人: 张三 | 备注: 王教授分享最新研究成果</p>
+          </div>
+          
+          <div class="form-group">
+            <label>上传附件</label>
+            <div class="upload-zone" id="upload-zone">
+              <i class='bx bx-cloud-upload upload-icon'></i>
+              <p>点击或拖拽文件到此区域</p>
+              <p class="upload-hint">支持 PDF、PPT、PPTX 文件，单个文件不超过 50MB</p>
+              <input type="file" id="file-input" multiple hidden>
+              <button class="btn-secondary" id="select-files-btn">选择文件</button>
+            </div>
+            
+            <div id="file-list" class="file-list">
+              <!-- Files dynamically inserted -->
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>标签 (用逗号分隔)</label>
+            <input type="text" id="tags-input" placeholder="例如: 深度学习, 教育技术, 实验设计">
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-secondary" id="cancel-submit">取消</button>
+            <button class="btn-outline" id="save-draft">保存草稿</button>
+            <button class="btn-primary" id="confirm-submit">确认提交</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Semester Tab -->
+      <section id="tab-semester" class="tab-content">
+        <div class="card">
+          <div class="section-header">
+            <h3 class="card-title">学期总结管理</h3>
+            <div class="deadline-badge">截止日期：2026年6月30日</div>
+          </div>
+          <p class="section-description">查看和提交本学期的各项总结内容</p>
+          
+          <div class="semester-grid" id="semester-categories">
+            <!-- Categories dynamically inserted -->
+          </div>
+        </div>
+        
+        <!-- Submission Form -->
+        <div id="semester-submission" class="card hidden">
+          <h3 class="card-title" id="submission-title">发表/录用期刊</h3>
+          
+          <div class="form-group">
+            <label id="submission-instruction">请填写发表/录用的期刊信息（期刊名称、级别）</label>
+            <textarea id="semester-text" rows="4" placeholder="请输入详细内容..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>上传附件（可选）</label>
+            <div class="upload-zone" id="semester-upload-zone">
+              <i class='bx bx-cloud-upload upload-icon'></i>
+              <p>点击或拖拽文件到此区域</p>
+              <p class="upload-hint">支持 PDF、DOC、DOCX、PPT 等文件格式</p>
+              <input type="file" id="semester-file-input" multiple hidden>
+              <button class="btn-secondary" id="select-semester-files">选择文件</button>
+            </div>
+            
+            <div id="semester-file-list" class="file-list">
+              <!-- Files dynamically inserted -->
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-secondary" id="cancel-semester">取消</button>
+            <button class="btn-outline" id="save-semester-draft">保存草稿</button>
+            <button class="btn-primary" id="submit-semester">确认提交</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedback Tab -->
+      <section id="tab-feedback" class="tab-content">
+        <div class="card">
+          <h3 class="card-title">反馈建议</h3>
+          <div class="feedback-container">
+            <div class="feedback-icon">
+              <i class='bx bx-envelope'></i>
+            </div>
+            <div class="feedback-content">
+              <p class="feedback-title">如遇网站使用问题或有所建议，请邮件联系</p>
+              <a href="mailto:rui_shen_iris@163.com" class="feedback-email">rui_shen_iris@163.com</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <!-- 底部信息 -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 段门课题组 - 华东师范大学</p>
-            <p>内部管理系统 v2.0</p>
-        </div>
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p>© 2026 段门内部网站 · 安全可靠 · 仅限内部使用</p>
     </footer>
+  </div>
 
-    <!-- 模态框容器 -->
-    <div id="modalContainer"></div>
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>用户登录</h3>
+        <button class="close-modal" id="close-login">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="login-name" placeholder="请输入姓名">
+        </div>
+        <div class="form-group">
+          <label>邮箱（密码）</label>
+          <input type="email" id="login-email" placeholder="请输入邮箱地址">
+        </div>
+        <div id="login-error" class="error-message hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="cancel-login">取消</button>
+        <button class="btn-primary" id="confirm-login">登录</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Toast提示容器 -->
-    <div id="toastContainer"></div>
+  <!-- Create Meeting Modal -->
+  <div id="meeting-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>创建新组会</h3>
+        <button class="close-modal" id="close-meeting">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>日期</label>
+          <input type="date" id="meeting-date">
+        </div>
+        <div class="form-group">
+          <label>地点</label>
+          <input type="text" id="meeting-location" placeholder="例如: 俊秀楼313 或 线上会议">
+        </div>
+        <div class="form-group">
+          <label>汇报人</label>
+          <input type="text" id="meeting-presenter">
+        </div>
+        <div class="form-group">
+          <label>备注</label>
+          <input type="text" id="meeting-note" placeholder="可选，例如: 某某教授分享">
+        </div>
+        <div class="form-checkbox">
+          <input type="checkbox" id="is-online">
+          <label for="is-online">线上会议</label>
+        </div>
+        <div class="form-group hidden" id="meeting-link-group">
+          <label>腾讯会议链接</label>
+          <input type="url" id="meeting-link" placeholder="https://meeting.tencent.com/...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="cancel-meeting">取消</button>
+        <button class="btn-primary" id="create-meeting">创建组会</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- JavaScript -->
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/pages/meetings.js"></script>
-    <script src="js/pages/summaries.js"></script>
-    <script src="js/pages/members.js"></script>
-    <script src="js/pages/resources.js"></script>
-    <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/meetings.js"></script>
+  <script src="js/semester.js"></script>
+  <script src="js/oss-upload.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
-
