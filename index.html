@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="华东师范大学段门课题组内部管理系统">
+    <title>段门课题组 - 内部管理系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <h1>段门课题组</h1>
+                <span class="subtitle">华东师范大学</span>
+            </div>
+            <nav class="nav-menu" id="navMenu">
+                <a href="#" class="nav-item active" data-page="home">
+                    <span class="icon">🏠</span>
+                    <span>首页</span>
+                </a>
+                <a href="#" class="nav-item" data-page="meetings">
+                    <span class="icon">📅</span>
+                    <span>组会报告</span>
+                </a>
+                <a href="#" class="nav-item" data-page="summaries">
+                    <span class="icon">📊</span>
+                    <span>学期总结</span>
+                </a>
+                <a href="#" class="nav-item" data-page="members">
+                    <span class="icon">👥</span>
+                    <span>成员管理</span>
+                </a>
+                <a href="#" class="nav-item" data-page="resources">
+                    <span class="icon">📚</span>
+                    <span>资源汇总</span>
+                </a>
+                <a href="#" class="nav-item" data-page="feedback">
+                    <span class="icon">💬</span>
+                    <span>反馈建议</span>
+                </a>
+            </nav>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-content" id="mainContent">
+        <!-- 首页内容 -->
+        <div id="homePage" class="page active">
+            <div class="container">
+                <div class="hero">
+                    <h2>欢迎来到段门课题组</h2>
+                    <p>华东师范大学内部管理系统</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <h3 id="meetingCount">0</h3>
+                            <p>组会总数</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3 id="memberCount">0</h3>
+                            <p>成员数量</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-content">
+                            <h3 id="submissionCount">0</h3>
+                            <p>提交报告</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <h3 id="resourceCount">0</h3>
+                            <p>资源总数</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>快速操作</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="navigateTo('meetings')">
+                            <span class="icon">➕</span>
+                            <span>提交组会报告</span>
+                        </button>
+                        <button class="action-btn" onclick="navigateTo('summaries')">
+                            <span class="icon">📝</span>
+                            <span>填写学期总结</span>
+                        </button>
+                        <button class="action-btn" onclick="navigateTo('resources')">
+                            <span class="icon">🔍</span>
+                            <span>查找资源</span>
+                        </button>
+                        <button class="action-btn" onclick="navigateTo('feedback')">
+                            <span class="icon">💬</span>
+                            <span>反馈建议</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>最近动态</h3>
+                    <div class="activity-list" id="recentActivity">
+                        <!-- 动态内容将通过JS加载 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 组会报告页面 -->
+        <div id="meetingsPage" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h2>组会报告管理</h2>
+                    <button class="primary-btn" onclick="showCreateMeetingModal()">
+                        <span>➕</span> 创建组会
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="meetingFilter" onchange="filterMeetings()">
+                        <option value="all">全部</option>
+                        <option value="upcoming">即将召开</option>
+                        <option value="past">历史会议</option>
+                    </select>
+                    <input type="text" id="meetingSearch" placeholder="搜索会议..." onkeyup="searchMeetings()">
+                </div>
+
+                <div class="meetings-grid" id="meetingsGrid">
+                    <!-- 会议卡片将通过JS加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 学期总结页面 -->
+        <div id="summariesPage" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h2>学期总结</h2>
+                    <button class="primary-btn" onclick="showCreateSummaryModal()">
+                        <span>➕</span> 新建总结
+                    </button>
+                </div>
+
+                <div class="summary-tabs">
+                    <button class="tab-btn active" data-tab="papers">论文发表</button>
+                    <button class="tab-btn" data-tab="submissions">投稿中</button>
+                    <button class="tab-btn" data-tab="articles">公众号文章</button>
+                    <button class="tab-btn" data-tab="literature">文献阅读</button>
+                    <button class="tab-btn" data-tab="theory">理论构念</button>
+                </div>
+
+                <div class="summary-content" id="summaryContent">
+                    <!-- 总结内容将通过JS加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 成员管理页面 -->
+        <div id="membersPage" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h2>成员管理</h2>
+                    <button class="primary-btn" onclick="showCreateMemberModal()">
+                        <span>➕</span> 添加成员
+                    </button>
+                </div>
+
+                <div class="member-filters">
+                    <select id="memberRoleFilter">
+                        <option value="all">全部身份</option>
+                        <option value="professor">教授</option>
+                        <option value="phd">博士生</option>
+                        <option value="master">硕士生</option>
+                        <option value="undergraduate">本科生</option>
+                    </select>
+                </div>
+
+                <div class="members-grid" id="membersGrid">
+                    <!-- 成员卡片将通过JS加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 资源汇总页面 -->
+        <div id="resourcesPage" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h2>资源汇总</h2>
+                    <button class="primary-btn" onclick="showUploadResourceModal()">
+                        <span>➕</span> 上传资源
+                    </button>
+                </div>
+
+                <div class="resource-categories">
+                    <button class="category-btn active" data-category="all">全部</button>
+                    <button class="category-btn" data-category="literature">文献</button>
+                    <button class="category-btn" data-category="theory">理论构念</button>
+                    <button class="category-btn" data-category="tools">工具</button>
+                    <button class="category-btn" data-category="other">其他</button>
+                </div>
+
+                <div class="resources-grid" id="resourcesGrid">
+                    <!-- 资源卡片将通过JS加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 反馈建议页面 -->
+        <div id="feedbackPage" class="page">
+            <div class="container">
+                <div class="page-header">
+                    <h2>反馈建议</h2>
+                </div>
+                <div class="feedback-message">
+                    <p>任何有关本网站的意见和建议，请邮件联系：<a href="mailto:rui_shen_iris@163.com">rui_shen_iris@163.com</a></p>
+                    <p>十分欢迎同门师兄弟姐妹们一起来参与网站的改进升级！</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部信息 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 段门课题组 - 华东师范大学</p>
+            <p>内部管理系统 v2.0</p>
+        </div>
+    </footer>
+
+    <!-- 模态框容器 -->
+    <div id="modalContainer"></div>
+
+    <!-- Toast提示容器 -->
+    <div id="toastContainer"></div>
+
+    <!-- JavaScript -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/pages/meetings.js"></script>
+    <script src="js/pages/summaries.js"></script>
+    <script src="js/pages/members.js"></script>
+    <script src="js/pages/resources.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
