@@ -1,344 +1,364 @@
-/**
- * 组会报告页面逻辑
- */
-
-// 当前页面状态
-const meetingsState = {
-    meetings: [],
-    filter: 'all',
-    searchQuery: '',
-    currentMeeting: null,
-};
-
-/**
- * 加载会议列表
- */
-async function loadMeetings() {
-    const container = document.getElementById('meetingsGrid');
-    showLoading(container);
-    
-    try {
-        // 模拟数据（实际项目中替换为API调用）
-        const mockMeetings = [
-            {
-                id: '1',
-                title: '第12周组会',
-                date: '2026-03-15',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'upcoming',
-                tags: ['文献讨论', '研究进展'],
-                presenter: '张三',
-                submissions: 3,
-            },
-            {
-                id: '2',
-                title: '第11周组会',
-                date: '2026-03-08',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'completed',
-                tags: ['论文汇报'],
-                presenter: '李四',
-                submissions: 5,
-            },
-            {
-                id: '3',
-                title: '第10周组会',
-                date: '2026-03-01',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'completed',
-                tags: ['研究方法', '数据处理'],
-                presenter: '王五',
-                submissions: 4,
-            },
-        ];
-        
-        meetingsState.meetings = mockMeetings;
-        renderMeetings();
-    } catch (error) {
-        showToast('加载会议列表失败', 'error');
-        showEmpty(container, '加载失败，请刷新重试');
-    }
-}
-
-/**
- * 渲染会议列表
- */
-function renderMeetings() {
-    const container = document.getElementById('meetingsGrid');
-    let filteredMeetings = [...meetingsState.meetings];
-    
-    // 应用筛选
-    if (meetingsState.filter !== 'all') {
-        filteredMeetings = filteredMeetings.filter(m => m.status === meetingsState.filter);
-    }
-    
-    // 应用搜索
-    if (meetingsState.searchQuery) {
-        const query = meetingsState.searchQuery.toLowerCase();
-        filteredMeetings = filteredMeetings.filter(m => 
-            m.title.toLowerCase().includes(query) ||
-            m.tags.some(t => t.toLowerCase().includes(query))
-        );
-    }
-    
-    if (filteredMeetings.length === 0) {
-        showEmpty(container, '暂无会议');
+const meetings = {
+  init() {
+    // Setup create meeting button
+    document.getElementById('create-meeting-btn').addEventListener('click', () => {
+      if (!auth.isAuthenticated()) {
+        app.openModal('login-modal');
         return;
-    }
+      }
+      app.openModal('meeting-modal');
+    });
     
-    container.innerHTML = filteredMeetings.map(meeting => `
-        <div class="card">
-            <div class="card-header">
-                <div>
-                    <div class="card-title">${escapeHtml(meeting.title)}</div>
-                    <div class="card-meta">${formatDate(meeting.date)} ${meeting.time}</div>
-                </div>
-                <span class="tag ${meeting.status === 'upcoming' ? 'primary' : 'success'}">
-                    ${meeting.status === 'upcoming' ? '即将召开' : '已结束'}
-                </span>
+    // Setup meeting form submission
+    document.getElementById('create-meeting').addEventListener('click', this.createMeeting.bind(this));
+    
+    // Setup online meeting toggle
+    document.getElementById('is-online').addEventListener('change', (e) => {
+      document.getElementById('meeting-link-group').classList.toggle('hidden', !e.target.checked);
+    });
+    
+    // Setup calendar navigation
+    document.getElementById('prev-month').addEventListener('click', () => {
+      const date = app.currentState.currentDate;
+      date.setMonth(date.getMonth() - 1);
+      app.currentState.currentDate = new Date(date);
+      this.renderCalendar();
+    });
+    
+    document.getElementById('next-month').addEventListener('click', () => {
+      const date = app.currentState.currentDate;
+      date.setMonth(date.getMonth() + 1);
+      app.currentState.currentDate = new Date(date);
+      this.renderCalendar();
+    });
+    
+    // Setup year/month selectors
+    document.getElementById('year-select').addEventListener('change', (e) => {
+      const year = parseInt(e.target.value);
+      const date = app.currentState.currentDate;
+      date.setFullYear(year);
+      app.currentState.currentDate = new Date(date);
+      this.renderCalendar();
+    });
+    
+    document.getElementById('month-select').addEventListener('change', (e) => {
+      const month = parseInt(e.target.value);
+      const date = app.currentState.currentDate;
+      date.setMonth(month);
+      app.currentState.currentDate = new Date(date);
+      this.renderCalendar();
+    });
+    
+    // Setup submission form buttons
+    document.getElementById('select-files-btn').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+    
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      this.handleFileSelect(e.target.files);
+    });
+    
+    document.getElementById('cancel-submit').addEventListener('click', () => {
+      document.getElementById('submission-form').classList.add('hidden');
+      app.currentState.selectedMeeting = null;
+    });
+    
+    document.getElementById('confirm-submit').addEventListener('click', () => {
+      this.submitMaterials();
+    });
+    
+    // Initial render
+    this.renderMeetings();
+  },
+  
+  renderMeetings() {
+    // Sort meetings by date (newest first)
+    const sortedMeetings = [...app.currentState.meetings].sort((a, b) => 
+      new Date(b.date) - new Date(a.date)
+    );
+    
+    // Get recent meetings (last 3)
+    const recentMeetings = sortedMeetings.slice(0, 3);
+    
+    const container = document.getElementById('meetings-container');
+    container.innerHTML = recentMeetings.map(meeting => `
+      <div class="meeting-item ${app.currentState.selectedMeeting?.id === meeting.id ? 'selected' : ''}" 
+           data-id="${meeting.id}">
+        <div class="meeting-header">
+          <div>
+            <div class="meeting-date">
+              <i class='bx bx-calendar'></i>
+              <span>${meeting.date}</span>
             </div>
-            <div class="card-body">
-                <p><strong>地点：</strong>${escapeHtml(meeting.location)}</p>
-                <p><strong>汇报人：</strong>${escapeHtml(meeting.presenter)}</p>
-                <p><strong>提交数：</strong>${meeting.submissions}份</p>
-                <div class="tags-container">
-                    ${meeting.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
+            <div class="meeting-location">
+              <i class='bx bx-map'></i>
+              <span>${meeting.location}</span>
             </div>
-            <div class="card-footer">
-                <button class="secondary-btn" onclick="viewMeetingDetail('${meeting.id}')">
-                    查看详情
-                </button>
-                ${meeting.status === 'upcoming' ? `
-                    <button class="primary-btn" onclick="showSubmitMaterialModal('${meeting.id}')">
-                        提交材料
-                    </button>
-                ` : ''}
-            </div>
+          </div>
+          <button class="btn-submit ${meeting.submitted ? 'disabled' : ''}" 
+                  ${meeting.submitted ? 'disabled' : ''}>
+            ${meeting.submitted ? '已提交' : '提交材料'}
+          </button>
         </div>
+        <div class="meeting-meta">
+          <span>汇报人: ${meeting.presenter}</span>
+          ${meeting.note ? `<span>· ${meeting.note}</span>` : ''}
+        </div>
+      </div>
     `).join('');
-}
-
-/**
- * 筛选会议
- */
-function filterMeetings() {
-    const filter = document.getElementById('meetingFilter').value;
-    meetingsState.filter = filter;
-    renderMeetings();
-}
-
-/**
- * 搜索会议
- */
-function searchMeetings() {
-    const query = document.getElementById('meetingSearch').value;
-    meetingsState.searchQuery = query;
-    renderMeetings();
-}
-
-/**
- * 显示创建会议模态框
- */
-function showCreateMeetingModal() {
-    const content = `
-        <form onsubmit="createMeeting(event)">
-            <div class="form-group">
-                <label for="meetingTitle">会议标题</label>
-                <input type="text" id="meetingTitle" required placeholder="例如：第12周组会">
-            </div>
-            <div class="form-group">
-                <label for="meetingDate">日期</label>
-                <input type="date" id="meetingDate" required>
-            </div>
-            <div class="form-group">
-                <label for="meetingTime">时间</label>
-                <input type="time" id="meetingTime" required value="14:00">
-            </div>
-            <div class="form-group">
-                <label for="meetingLocation">地点</label>
-                <input type="text" id="meetingLocation" required placeholder="例如：理科大楼B301">
-            </div>
-            <div class="form-group">
-                <label for="meetingTags">标签（逗号分隔）</label>
-                <input type="text" id="meetingTags" placeholder="例如：文献讨论,研究进展">
-            </div>
-            <button type="submit" class="primary-btn">创建会议</button>
-        </form>
-    `;
-    showModal(content, '创建组会');
-}
-
-/**
- * 创建会议
- */
-async function createMeeting(event) {
-    event.preventDefault();
     
-    const title = document.getElementById('meetingTitle').value;
-    const date = document.getElementById('meetingDate').value;
-    const time = document.getElementById('meetingTime').value;
-    const location = document.getElementById('meetingLocation').value;
-    const tagsStr = document.getElementById('meetingTags').value;
-    const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(t => t) : [];
-    
-    try {
-        // 实际项目中调用API
-        // await meetingApi.create({ title, date, time, location, tags });
+    // Add click handlers
+    document.querySelectorAll('.meeting-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-submit')) return;
         
-        // 模拟创建
-        const newMeeting = {
-            id: generateId(),
-            title,
-            date,
-            time,
-            location,
-            tags,
-            status: 'upcoming',
-            presenter: '待定',
-            submissions: 0,
-        };
+        const meetingId = parseInt(item.getAttribute('data-id'));
+        const meeting = app.currentState.meetings.find(m => m.id === meetingId);
         
-        meetingsState.meetings.unshift(newMeeting);
-        renderMeetings();
-        closeModal();
-        showToast('会议创建成功', 'success');
-    } catch (error) {
-        showToast('创建失败，请重试', 'error');
-    }
-}
-
-/**
- * 查看会议详情
- */
-function viewMeetingDetail(meetingId) {
-    const meeting = meetingsState.meetings.find(m => m.id === meetingId);
-    if (!meeting) return;
-    
-    const content = `
-        <div class="meeting-detail">
-            <div class="detail-row">
-                <strong>会议标题：</strong>
-                <span>${escapeHtml(meeting.title)}</span>
-            </div>
-            <div class="detail-row">
-                <strong>时间：</strong>
-                <span>${formatDate(meeting.date)} ${meeting.time}</span>
-            </div>
-            <div class="detail-row">
-                <strong>地点：</strong>
-                <span>${escapeHtml(meeting.location)}</span>
-            </div>
-            <div class="detail-row">
-                <strong>汇报人：</strong>
-                <span>${escapeHtml(meeting.presenter)}</span>
-            </div>
-            <div class="detail-row">
-                <strong>状态：</strong>
-                <span class="tag ${meeting.status === 'upcoming' ? 'primary' : 'success'}">
-                    ${meeting.status === 'upcoming' ? '即将召开' : '已结束'}
-                </span>
-            </div>
-            <div class="detail-row">
-                <strong>标签：</strong>
-                <div>
-                    ${meeting.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
-            </div>
-            <div class="detail-row">
-                <strong>提交材料：</strong>
-                <span>${meeting.submissions}份</span>
-            </div>
-        </div>
-        <div class="card-footer" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-            <button class="secondary-btn" onclick="closeModal()">关闭</button>
-            ${meeting.status === 'upcoming' ? `
-                <button class="primary-btn" onclick="closeModal(); showSubmitMaterialModal('${meeting.id}')">
-                    提交材料
-                </button>
-            ` : ''}
-        </div>
-    `;
-    
-    showModal(content, meeting.title);
-}
-
-/**
- * 显示提交材料模态框
- */
-function showSubmitMaterialModal(meetingId) {
-    const meeting = meetingsState.meetings.find(m => m.id === meetingId);
-    if (!meeting) return;
-    
-    const content = `
-        <form onsubmit="submitMaterial(event, '${meetingId}')">
-            <div class="form-group">
-                <label for="materialTitle">材料标题</label>
-                <input type="text" id="materialTitle" required placeholder="请输入材料标题">
-            </div>
-            <div class="form-group">
-                <label for="materialFile">上传文件（PPT/PDF）</label>
-                <div class="file-upload-area" onclick="document.getElementById('materialFile').click()">
-                    <input type="file" id="materialFile" accept=".ppt,.pptx,.pdf" onchange="handleFileSelect(this)">
-                    <div class="icon">📁</div>
-                    <p id="fileInfo">点击上传文件或拖拽到此处</p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="materialNote">备注</label>
-                <textarea id="materialNote" rows="3" placeholder="可选：添加备注说明"></textarea>
-            </div>
-            <button type="submit" class="primary-btn">提交材料</button>
-        </form>
-    `;
-    
-    showModal(content, `提交材料 - ${meeting.title}`);
-}
-
-/**
- * 处理文件选择
- */
-function handleFileSelect(input) {
-    const file = input.files[0];
-    const fileInfo = document.getElementById('fileInfo');
-    
-    if (file) {
-        fileInfo.textContent = `${file.name} (${formatFileSize(file.size)})`;
-    }
-}
-
-/**
- * 提交材料
- */
-async function submitMaterial(event, meetingId) {
-    event.preventDefault();
-    
-    const title = document.getElementById('materialTitle').value;
-    const fileInput = document.getElementById('materialFile');
-    const note = document.getElementById('materialNote').value;
-    
-    if (!fileInput.files[0]) {
-        showToast('请选择文件', 'warning');
-        return;
-    }
-    
-    try {
-        // 实际项目中调用API
-        // await meetingApi.submit({ meetingId, title, file: fileInput.files[0], note });
-        
-        // 模拟提交
-        const meeting = meetingsState.meetings.find(m => m.id === meetingId);
         if (meeting) {
-            meeting.submissions++;
+          app.currentState.selectedMeeting = meeting;
+          this.renderSelectedMeeting(meeting);
+          
+          // Highlight selected meeting
+          document.querySelectorAll('.meeting-item').forEach(el => 
+            el.classList.remove('selected')
+          );
+          item.classList.add('selected');
+        }
+      });
+    });
+    
+    document.querySelectorAll('.btn-submit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!auth.isAuthenticated()) {
+          app.openModal('login-modal');
+          return;
         }
         
-        closeModal();
-        showToast('材料提交成功', 'success');
-        renderMeetings();
-    } catch (error) {
-        showToast('提交失败，请重试', 'error');
+        const meetingId = parseInt(btn.closest('.meeting-item').getAttribute('data-id'));
+        const meeting = app.currentState.meetings.find(m => m.id === meetingId);
+        
+        if (meeting && !meeting.submitted) {
+          app.currentState.selectedMeeting = meeting;
+          this.showSubmissionForm(meeting);
+        }
+      });
+    });
+  },
+  
+  renderSelectedMeeting(meeting) {
+    const infoElement = document.getElementById('selected-meeting-info');
+    const dateElement = document.getElementById('selected-meeting-date');
+    const detailElement = document.getElementById('selected-meeting-detail');
+    const submitBtn = document.getElementById('submit-materials-btn');
+    
+    dateElement.textContent = `${meeting.date} - ${meeting.location}`;
+    detailElement.textContent = `汇报人: ${meeting.presenter}${meeting.note ? ` | 备注: ${meeting.note}` : ''}`;
+    submitBtn.disabled = meeting.submitted;
+    submitBtn.textContent = meeting.submitted ? '已提交' : '提交材料';
+    
+    infoElement.classList.remove('hidden');
+    
+    // Setup submit button
+    submitBtn.onclick = () => {
+      if (!auth.isAuthenticated()) {
+        app.openModal('login-modal');
+        return;
+      }
+      
+      if (!meeting.submitted) {
+        this.showSubmissionForm(meeting);
+      }
+    };
+  },
+  
+  showSubmissionForm(meeting) {
+    document.getElementById('submission-meeting-info').textContent = 
+      `${meeting.date} - ${meeting.location}`;
+    document.getElementById('submission-presenter-info').textContent = 
+      `汇报人: ${meeting.presenter}${meeting.note ? ` | 备注: ${meeting.note}` : ''}`;
+    
+    document.getElementById('submission-form').classList.remove('hidden');
+    document.getElementById('tab-meetings').scrollTo({ top: 0, behavior: 'smooth' });
+  },
+  
+  handleFileSelect(files) {
+    const fileList = document.getElementById('file-list');
+    Array.from(files).forEach(file => {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.innerHTML = `
+        <span>${file.name}</span>
+        <button class="file-remove" data-file="${file.name}">×</button>
+      `;
+      fileList.appendChild(fileItem);
+    });
+    
+    // Setup remove buttons
+    document.querySelectorAll('.file-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.target.closest('.file-item').remove();
+      });
+    });
+  },
+  
+  submitMaterials() {
+    if (!auth.isAuthenticated()) {
+      app.openModal('login-modal');
+      return;
     }
-}
+    
+    const meeting = app.currentState.selectedMeeting;
+    if (!meeting) return;
+    
+    // In production, this would upload files to OSS and save metadata to backend
+    console.log('Submitting materials for meeting:', meeting.id);
+    console.log('Files:', document.querySelectorAll('.file-item').length);
+    console.log('Tags:', document.getElementById('tags-input').value);
+    
+    // Mark as submitted
+    const index = app.currentState.meetings.findIndex(m => m.id === meeting.id);
+    if (index !== -1) {
+      app.currentState.meetings[index].submitted = true;
+      this.renderMeetings();
+      this.renderSelectedMeeting(app.currentState.meetings[index]);
+    }
+    
+    // Hide form
+    document.getElementById('submission-form').classList.add('hidden');
+    document.getElementById('file-list').innerHTML = '';
+    document.getElementById('tags-input').value = '';
+    
+    // Show success message (in production, use a toast notification)
+    alert('材料提交成功！');
+  },
+  
+  createMeeting() {
+    const date = document.getElementById('meeting-date').value;
+    const location = document.getElementById('meeting-location').value;
+    const presenter = document.getElementById('meeting-presenter').value;
+    const note = document.getElementById('meeting-note').value;
+    const isOnline = document.getElementById('is-online').checked;
+    const meetingLink = document.getElementById('meeting-link').value;
+    
+    if (!date || !location || !presenter) {
+      alert('请填写日期、地点和汇报人');
+      return;
+    }
+    
+    const newMeeting = {
+      id: Date.now(),
+      date,
+      location,
+      presenter,
+      note,
+      isOnline,
+      meetingLink: isOnline ? meetingLink : '',
+      submitted: false,
+      presentations: []
+    };
+    
+    app.currentState.meetings.unshift(newMeeting);
+    this.renderMeetings();
+    this.renderCalendar();
+    
+    // Close modal and reset form
+    app.closeModal('meeting-modal');
+    document.getElementById('meeting-date').value = '';
+    document.getElementById('meeting-location').value = '';
+    document.getElementById('meeting-presenter').value = '';
+    document.getElementById('meeting-note').value = '';
+    document.getElementById('is-online').checked = false;
+    document.getElementById('meeting-link').value = '';
+    document.getElementById('meeting-link-group').classList.add('hidden');
+  },
+  
+  renderCalendar() {
+    const date = app.currentState.currentDate;
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    // Update month display
+    document.getElementById('current-month').textContent = `${year}年${month + 1}月`;
+    document.getElementById('year-select').value = year.toString();
+    document.getElementById('month-select').value = month.toString();
+    
+    // Get days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    
+    // Get meeting dates
+    const meetingDates = app.currentState.meetings.map(m => m.date);
+    
+    // Generate calendar days
+    const calendarDays = document.getElementById('calendar-days');
+    calendarDays.innerHTML = '';
+    
+    // Previous month days
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = prevMonthDays - i;
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      this.addCalendarDay(calendarDays, day, false, meetingDates.includes(dateStr), dateStr);
+    }
+    
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+      this.addCalendarDay(
+        calendarDays, 
+        day, 
+        true, 
+        meetingDates.includes(dateStr), 
+        dateStr,
+        isToday
+      );
+    }
+    
+    // Next month days
+    const totalCells = 42; // 6 rows x 7 days
+    const remainingCells = totalCells - (firstDay + daysInMonth);
+    for (let i = 1; i <= remainingCells; i++) {
+      const nextMonth = month + 1;
+      const nextYear = nextMonth > 11 ? year + 1 : year;
+      const actualNextMonth = nextMonth > 11 ? 0 : nextMonth;
+      const dateStr = `${nextYear}-${String(actualNextMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      this.addCalendarDay(calendarDays, i, false, meetingDates.includes(dateStr), dateStr);
+    }
+  },
+  
+  addCalendarDay(container, day, isCurrentMonth, hasMeeting, dateStr, isToday = false) {
+    const dayEl = document.createElement('div');
+    dayEl.className = `calendar-day ${isCurrentMonth ? '' : 'other-month'} ${hasMeeting ? 'has-meeting' : ''} ${isToday ? 'today' : ''}`;
+    dayEl.textContent = day;
+    
+    if (hasMeeting) {
+      dayEl.addEventListener('click', () => {
+        // Find meeting for this date
+        const meeting = app.currentState.meetings.find(m => m.date === dateStr);
+        if (meeting) {
+          app.currentState.selectedDate = dateStr;
+          app.currentState.selectedMeeting = meeting;
+          
+          // Update UI
+          document.querySelectorAll('.calendar-day').forEach(el => 
+            el.classList.remove('selected')
+          );
+          dayEl.classList.add('selected');
+          
+          this.renderSelectedMeeting(meeting);
+          
+          // Scroll to selected meeting info
+          document.getElementById('selected-meeting-info').scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+    
+    container.appendChild(dayEl);
+  }
+};
+
+// Export meetings module
+window.meetings = meetings;
