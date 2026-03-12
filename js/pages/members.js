@@ -13,7 +13,7 @@ const DEFAULT_MEMBERS = [
         role: 'professor',
         roleLabel: '教授',
         university: '华东师范大学',
-        department: '教育信息技术学系',
+        department: '心理与认知科学学院',
         email: 'duan@ecnu.edu.cn',
         joinDate: '2010-09',
         avatar: '👨‍🏫',
