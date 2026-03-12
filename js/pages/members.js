@@ -2,6 +2,92 @@
  * 成员管理页面逻辑
  */
 
+// 本地存储key
+const MEMBERS_STORAGE_KEY = 'dm_members';
+
+// 默认成员数据（首次加载使用）
+const DEFAULT_MEMBERS = [
+    {
+        id: '1',
+        name: '段老师',
+        role: 'professor',
+        roleLabel: '教授',
+        university: '华东师范大学',
+        department: '教育信息技术学系',
+        email: 'duan@ecnu.edu.cn',
+        joinDate: '2010-09',
+        avatar: '👨‍🏫',
+    },
+    {
+        id: '2',
+        name: '张三',
+        role: 'phd',
+        roleLabel: '博士生',
+        university: '华东师范大学',
+        department: '教育技术学',
+        email: 'zhangsan@ecnu.edu.cn',
+        joinDate: '2022-09',
+        research: '学习分析、教育数据挖掘',
+        avatar: '👨‍🎓',
+    },
+    {
+        id: '3',
+        name: '李四',
+        role: 'phd',
+        roleLabel: '博士生',
+        university: '华东师范大学',
+        department: '教育技术学',
+        email: 'lisi@ecnu.edu.cn',
+        joinDate: '2023-09',
+        research: '人工智能教育应用',
+        avatar: '👩‍🎓',
+    },
+    {
+        id: '4',
+        name: '王五',
+        role: 'master',
+        roleLabel: '硕士生',
+        university: '华东师范大学',
+        department: '教育技术学',
+        email: 'wangwu@ecnu.edu.cn',
+        joinDate: '2024-09',
+        research: '在线学习环境设计',
+        avatar: '👨‍🎓',
+    },
+    {
+        id: '5',
+        name: '赵六',
+        role: 'undergraduate',
+        roleLabel: '本科生',
+        university: '华东师范大学',
+        department: '教育技术学',
+        email: 'zhaoliu@ecnu.edu.cn',
+        joinDate: '2025-09',
+        avatar: '👨‍🎓',
+    },
+];
+
+function loadMembersFromStorage() {
+    const saved = storage.get(MEMBERS_STORAGE_KEY, null);
+    if (Array.isArray(saved)) {
+        const roleLabels = {
+            professor: '教授',
+            phd: '博士生',
+            master: '硕士生',
+            undergraduate: '本科生',
+        };
+        return saved.map(member => ({
+            ...member,
+            roleLabel: member.roleLabel || roleLabels[member.role] || '成员',
+        }));
+    }
+    return DEFAULT_MEMBERS;
+}
+
+function saveMembersToStorage() {
+    storage.set(MEMBERS_STORAGE_KEY, membersState.members);
+}
+
 // 当前页面状态
 const membersState = {
     members: [],
@@ -16,69 +102,7 @@ async function loadMembers() {
     showLoading(container);
     
     try {
-        // 模拟数据
-        const mockMembers = [
-            {
-                id: '1',
-                name: '段老师',
-                role: 'professor',
-                roleLabel: '教授',
-                university: '华东师范大学',
-                department: '教育信息技术学系',
-                email: 'duan@ecnu.edu.cn',
-                joinDate: '2010-09',
-                avatar: '👨‍🏫',
-            },
-            {
-                id: '2',
-                name: '张三',
-                role: 'phd',
-                roleLabel: '博士生',
-                university: '华东师范大学',
-                department: '教育技术学',
-                email: 'zhangsan@ecnu.edu.cn',
-                joinDate: '2022-09',
-                research: '学习分析、教育数据挖掘',
-                avatar: '👨‍🎓',
-            },
-            {
-                id: '3',
-                name: '李四',
-                role: 'phd',
-                roleLabel: '博士生',
-                university: '华东师范大学',
-                department: '教育技术学',
-                email: 'lisi@ecnu.edu.cn',
-                joinDate: '2023-09',
-                research: '人工智能教育应用',
-                avatar: '👩‍🎓',
-            },
-            {
-                id: '4',
-                name: '王五',
-                role: 'master',
-                roleLabel: '硕士生',
-                university: '华东师范大学',
-                department: '教育技术学',
-                email: 'wangwu@ecnu.edu.cn',
-                joinDate: '2024-09',
-                research: '在线学习环境设计',
-                avatar: '👨‍🎓',
-            },
-            {
-                id: '5',
-                name: '赵六',
-                role: 'undergraduate',
-                roleLabel: '本科生',
-                university: '华东师范大学',
-                department: '教育技术学',
-                email: 'zhaoliu@ecnu.edu.cn',
-                joinDate: '2025-09',
-                avatar: '👨‍🎓',
-            },
-        ];
-        
-        membersState.members = mockMembers;
+        membersState.members = loadMembersFromStorage();
         renderMembers();
         setupMemberFilters();
     } catch (error) {
@@ -221,6 +245,7 @@ async function createMember(event) {
         // await memberApi.create(newMember);
         
         membersState.members.push(newMember);
+        saveMembersToStorage();
         renderMembers();
         closeModal();
         showToast('成员添加成功', 'success');
@@ -320,6 +345,7 @@ async function updateMember(event, memberId) {
         // 实际项目中调用API
         // await memberApi.update(memberId, member);
         
+        saveMembersToStorage();
         renderMembers();
         closeModal();
         showToast('修改成功', 'success');
