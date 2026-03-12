@@ -2,6 +2,46 @@
  * 组会报告页面逻辑
  */
 
+// 本地存储key
+const MEETINGS_STORAGE_KEY = 'dm_meetings';
+
+// 默认会议数据（首次加载使用）
+const DEFAULT_MEETINGS = [
+    {
+        id: '1',
+        title: '第12周组会',
+        date: '2026-03-15',
+        time: '14:00',
+        location: '理科大楼B301',
+        status: 'upcoming',
+        tags: ['文献讨论', '研究进展'],
+        presenter: '张三',
+        submissions: 3,
+    },
+    {
+        id: '2',
+        title: '第11周组会',
+        date: '2026-03-08',
+        time: '14:00',
+        location: '理科大楼B301',
+        status: 'completed',
+        tags: ['论文汇报'],
+        presenter: '李四',
+        submissions: 5,
+    },
+    {
+        id: '3',
+        title: '第10周组会',
+        date: '2026-03-01',
+        time: '14:00',
+        location: '理科大楼B301',
+        status: 'completed',
+        tags: ['研究方法', '数据处理'],
+        presenter: '王五',
+        submissions: 4,
+    },
+];
+
 // 当前页面状态
 const meetingsState = {
     meetings: [],
@@ -9,6 +49,23 @@ const meetingsState = {
     searchQuery: '',
     currentMeeting: null,
 };
+
+function loadMeetingsFromStorage() {
+    const saved = storage.get(MEETINGS_STORAGE_KEY, null);
+    if (Array.isArray(saved)) {
+        return saved.map(meeting => ({
+            ...meeting,
+            tags: Array.isArray(meeting.tags) ? meeting.tags : [],
+            submissions: Number(meeting.submissions) || 0,
+            status: meeting.status || 'upcoming',
+        }));
+    }
+    return DEFAULT_MEETINGS;
+}
+
+function saveMeetingsToStorage() {
+    storage.set(MEETINGS_STORAGE_KEY, meetingsState.meetings);
+}
 
 /**
  * 加载会议列表
@@ -18,44 +75,7 @@ async function loadMeetings() {
     showLoading(container);
     
     try {
-        // 模拟数据（实际项目中替换为API调用）
-        const mockMeetings = [
-            {
-                id: '1',
-                title: '第12周组会',
-                date: '2026-03-15',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'upcoming',
-                tags: ['文献讨论', '研究进展'],
-                presenter: '张三',
-                submissions: 3,
-            },
-            {
-                id: '2',
-                title: '第11周组会',
-                date: '2026-03-08',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'completed',
-                tags: ['论文汇报'],
-                presenter: '李四',
-                submissions: 5,
-            },
-            {
-                id: '3',
-                title: '第10周组会',
-                date: '2026-03-01',
-                time: '14:00',
-                location: '理科大楼B301',
-                status: 'completed',
-                tags: ['研究方法', '数据处理'],
-                presenter: '王五',
-                submissions: 4,
-            },
-        ];
-        
-        meetingsState.meetings = mockMeetings;
+        meetingsState.meetings = loadMeetingsFromStorage();
         renderMeetings();
     } catch (error) {
         showToast('加载会议列表失败', 'error');
@@ -203,6 +223,7 @@ async function createMeeting(event) {
         };
         
         meetingsState.meetings.unshift(newMeeting);
+        saveMeetingsToStorage();
         renderMeetings();
         closeModal();
         showToast('会议创建成功', 'success');
@@ -334,6 +355,8 @@ async function submitMaterial(event, meetingId) {
         if (meeting) {
             meeting.submissions++;
         }
+        
+        saveMeetingsToStorage();
         
         closeModal();
         showToast('材料提交成功', 'success');
