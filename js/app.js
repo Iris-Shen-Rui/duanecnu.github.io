@@ -110,12 +110,22 @@ function loadPageData(page) {
  */
 async function loadHomePageData() {
     try {
-        // 模拟统计数据
+        const meetings = storage.get('dm_meetings', null);
+        const members = storage.get('dm_members', null);
+        const resources = storage.get('dm_resources', null);
+        
+        const meetingCount = Array.isArray(meetings) ? meetings.length : 3;
+        const memberCount = Array.isArray(members) ? members.length : 5;
+        const submissionCount = Array.isArray(meetings)
+            ? meetings.reduce((sum, m) => sum + (Number(m.submissions) || 0), 0)
+            : 12;
+        const resourceCount = Array.isArray(resources) ? resources.length : 5;
+        
         const stats = {
-            meetingCount: 24,
-            memberCount: 12,
-            submissionCount: 86,
-            resourceCount: 45,
+            meetingCount,
+            memberCount,
+            submissionCount,
+            resourceCount,
         };
         
         // 更新统计数字（带动画效果）
