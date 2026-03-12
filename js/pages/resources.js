@@ -2,6 +2,106 @@
  * 资源汇总页面逻辑
  */
 
+// 本地存储key
+const RESOURCES_STORAGE_KEY = 'dm_resources';
+
+// 默认资源数据（首次加载使用）
+const DEFAULT_RESOURCES = [
+    {
+        id: '1',
+        title: '深度学习论文合集',
+        category: 'literature',
+        categoryLabel: '文献',
+        description: '包含ResNet、Transformer、BERT等经典论文',
+        fileCount: 15,
+        size: '25.6 MB',
+        uploadDate: '2026-03-05',
+        uploader: '张三',
+        downloads: 45,
+        files: [],
+    },
+    {
+        id: '2',
+        title: '认知负荷理论综述',
+        category: 'theory',
+        categoryLabel: '理论构念',
+        description: '认知负荷理论的定义、测量方法及应用场景',
+        fileCount: 1,
+        size: '1.2 MB',
+        uploadDate: '2026-03-01',
+        uploader: '李四',
+        downloads: 32,
+        files: [{ name: '认知负荷理论综述.pdf', size: 1258291 }],
+    },
+    {
+        id: '3',
+        title: 'Python数据分析工具包',
+        category: 'tools',
+        categoryLabel: '工具',
+        description: '包含numpy、pandas、matplotlib常用代码模板',
+        fileCount: 10,
+        size: '156 KB',
+        uploadDate: '2026-02-20',
+        uploader: '王五',
+        downloads: 78,
+        files: [],
+    },
+    {
+        id: '4',
+        title: '学习分析研究方法',
+        category: 'literature',
+        categoryLabel: '文献',
+        description: '学习分析领域的研究方法综述',
+        fileCount: 5,
+        size: '8.5 MB',
+        uploadDate: '2026-02-15',
+        uploader: '张三',
+        downloads: 56,
+        files: [],
+    },
+    {
+        id: '5',
+        title: 'SPSS统计分析教程',
+        category: 'tools',
+        categoryLabel: '工具',
+        description: 'SPSS常用统计分析操作指南',
+        fileCount: 1,
+        size: '3.2 MB',
+        uploadDate: '2026-02-10',
+        uploader: '李四',
+        downloads: 89,
+        files: [{ name: 'SPSS统计分析教程.pdf', size: 3355443 }],
+    },
+];
+
+function loadResourcesFromStorage() {
+    const saved = storage.get(RESOURCES_STORAGE_KEY, null);
+    if (Array.isArray(saved)) {
+        const labelMap = {
+            literature: '文献',
+            theory: '理论构念',
+            tools: '工具',
+            other: '其他',
+        };
+        return saved.map(resource => {
+            const files = Array.isArray(resource.files) ? resource.files : [];
+            const sizeBytes = files.reduce((sum, f) => sum + (Number(f.size) || 0), 0);
+            return {
+                ...resource,
+                categoryLabel: resource.categoryLabel || labelMap[resource.category] || '其他',
+                files,
+                fileCount: Number(resource.fileCount) || files.length,
+                size: resource.size || (sizeBytes > 0 ? formatFileSize(sizeBytes) : '0 B'),
+            };
+        });
+    }
+    return DEFAULT_RESOURCES;
+}
+
+function saveResourcesToStorage() {
+    storage.set(RESOURCES_STORAGE_KEY, resourcesState.resources);
+}
+
 // 当前页面状态
 const resourcesState = {
     resources: [],
@@ -16,71 +116,7 @@ async function loadResources() {
     showLoading(container);
     
     try {
-        // 模拟数据
-        const mockResources = [
-            {
-                id: '1',
-                title: '深度学习论文合集',
-                category: 'literature',
-                categoryLabel: '文献',
-                description: '包含ResNet、Transformer、BERT等经典论文',
-                fileCount: 15,
-                size: '25.6 MB',
-                uploadDate: '2026-03-05',
-                uploader: '张三',
-                downloads: 45,
-            },
-            {
-                id: '2',
-                title: '认知负荷理论综述',
-                category: 'theory',
-                categoryLabel: '理论构念',
-                description: '认知负荷理论的定义、测量方法及应用场景',
-                fileCount: 1,
-                size: '1.2 MB',
-                uploadDate: '2026-03-01',
-                uploader: '李四',
-                downloads: 32,
-            },
-            {
-                id: '3',
-                title: 'Python数据分析工具包',
-                category: 'tools',
-                categoryLabel: '工具',
-                description: '包含numpy、pandas、matplotlib常用代码模板',
-                fileCount: 10,
-                size: '156 KB',
-                uploadDate: '2026-02-20',
-                uploader: '王五',
-                downloads: 78,
-            },
-            {
-                id: '4',
-                title: '学习分析研究方法',
-                category: 'literature',
-                categoryLabel: '文献',
-                description: '学习分析领域的研究方法综述',
-                fileCount: 5,
-                size: '8.5 MB',
-                uploadDate: '2026-02-15',
-                uploader: '张三',
-                downloads: 56,
-            },
-            {
-                id: '5',
-                title: 'SPSS统计分析教程',
-                category: 'tools',
-                categoryLabel: '工具',
-                description: 'SPSS常用统计分析操作指南',
-                fileCount: 1,
-                size: '3.2 MB',
-                uploadDate: '2026-02-10',
-                uploader: '李四',
-                downloads: 89,
-            },
-        ];
-        
-        resourcesState.resources = mockResources;
+        resourcesState.resources = loadResourcesFromStorage();
         renderResources();
         setupCategoryFilters();
     } catch (error) {
@@ -239,9 +275,14 @@ async function uploadResource(event) {
             uploadDate: new Date().toISOString(),
             uploader: '当前用户',
             downloads: 0,
+            files: Array.from(fileInput.files).map(file => ({
+                name: file.name,
+                size: file.size,
+            })),
         };
         
         resourcesState.resources.unshift(newResource);
+        saveResourcesToStorage();
         renderResources();
         closeModal();
         showToast('资源上传成功', 'success');
@@ -275,6 +316,18 @@ function viewResourceDetail(resourceId) {
                 <strong>文件信息：</strong>
                 <span>${resource.fileCount}个文件，共${resource.size}</span>
             </div>
+            ${resource.files && resource.files.length > 0 ? `
+                <div class="detail-row">
+                    <strong>文件列表：</strong>
+                    <div>
+                        ${resource.files.map(file => `
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                ${escapeHtml(file.name)} (${formatFileSize(file.size)})
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
             <div class="detail-row">
                 <strong>上传者：</strong>
                 <span>${escapeHtml(resource.uploader)}</span>
@@ -311,6 +364,7 @@ async function downloadResource(resourceId) {
         
         // 模拟下载
         resource.downloads++;
+        saveResourcesToStorage();
         showToast('开始下载...', 'success');
     } catch (error) {
         showToast('下载失败，请重试', 'error');
