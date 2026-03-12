@@ -2,6 +2,89 @@
  * 学期总结页面逻辑
  */
 
+// 本地存储key
+const SUMMARIES_STORAGE_KEY = 'dm_summaries';
+
+// 默认总结数据（首次加载使用）
+const DEFAULT_SUMMARIES = {
+    papers: [
+        {
+            id: '1',
+            title: '深度学习在教育领域的应用研究',
+            author: '张三',
+            journal: '计算机教育',
+            date: '2026-03',
+            status: 'published',
+        },
+        {
+            id: '2',
+            title: '基于NLP的知识图谱构建方法',
+            author: '李四',
+            journal: '人工智能学报',
+            date: '2026-02',
+            status: 'published',
+        },
+    ],
+    submissions: [
+        {
+            id: '3',
+            title: '认知负荷理论在学习分析中的应用',
+            author: '王五',
+            journal: '教育技术学报',
+            date: '2026-03-01',
+            status: 'under_review',
+        },
+    ],
+    articles: [
+        {
+            id: '4',
+            title: '如何高效阅读文献',
+            author: '张三',
+            platform: '课题组公众号',
+            date: '2026-03-10',
+            views: 520,
+        },
+    ],
+    literature: [
+        {
+            id: '5',
+            title: '深度学习经典论文合集',
+            category: '机器学习',
+            count: 15,
+            note: '包含ResNet、Transformer等经典论文',
+            date: '2026-03-05',
+        },
+    ],
+    theory: [
+        {
+            id: '6',
+            name: '认知负荷理论',
+            field: '教育心理学',
+            definition: '描述工作记忆在学习过程中的容量限制',
+            applications: ['多媒体教学设计', '教学材料开发', '学习环境优化'],
+            date: '2026-03-01',
+        },
+    ],
+};
+
+function loadSummariesFromStorage() {
+    const saved = storage.get(SUMMARIES_STORAGE_KEY, null);
+    if (saved && typeof saved === 'object') {
+        return {
+            papers: Array.isArray(saved.papers) ? saved.papers : [],
+            submissions: Array.isArray(saved.submissions) ? saved.submissions : [],
+            articles: Array.isArray(saved.articles) ? saved.articles : [],
+            literature: Array.isArray(saved.literature) ? saved.literature : [],
+            theory: Array.isArray(saved.theory) ? saved.theory : [],
+        };
+    }
+    return DEFAULT_SUMMARIES;
+}
+
+function saveSummariesToStorage() {
+    storage.set(SUMMARIES_STORAGE_KEY, summariesState.summaries);
+}
+
 // 当前页面状态
 const summariesState = {
     activeTab: 'papers',
@@ -22,67 +105,7 @@ async function loadSummaries() {
     showLoading(container);
     
     try {
-        // 模拟数据
-        summariesState.summaries = {
-            papers: [
-                {
-                    id: '1',
-                    title: '深度学习在教育领域的应用研究',
-                    author: '张三',
-                    journal: '计算机教育',
-                    date: '2026-03',
-                    status: 'published',
-                },
-                {
-                    id: '2',
-                    title: '基于NLP的知识图谱构建方法',
-                    author: '李四',
-                    journal: '人工智能学报',
-                    date: '2026-02',
-                    status: 'published',
-                },
-            ],
-            submissions: [
-                {
-                    id: '3',
-                    title: '认知负荷理论在学习分析中的应用',
-                    author: '王五',
-                    journal: '教育技术学报',
-                    date: '2026-03-01',
-                    status: 'under_review',
-                },
-            ],
-            articles: [
-                {
-                    id: '4',
-                    title: '如何高效阅读文献',
-                    author: '张三',
-                    platform: '课题组公众号',
-                    date: '2026-03-10',
-                    views: 520,
-                },
-            ],
-            literature: [
-                {
-                    id: '5',
-                    title: '深度学习经典论文合集',
-                    category: '机器学习',
-                    count: 15,
-                    note: '包含ResNet、Transformer等经典论文',
-                    date: '2026-03-05',
-                },
-            ],
-            theory: [
-                {
-                    id: '6',
-                    name: '认知负荷理论',
-                    field: '教育心理学',
-                    definition: '描述工作记忆在学习过程中的容量限制',
-                    applications: ['多媒体教学设计', '教学材料开发', '学习环境优化'],
-                    date: '2026-03-01',
-                },
-            ],
-        };
+        summariesState.summaries = loadSummariesFromStorage();
         
         renderSummaries();
         setupSummaryTabs();
@@ -394,16 +417,90 @@ async function createSummary(event) {
     event.preventDefault();
     
     const type = document.getElementById('summaryType').value;
-    const title = document.getElementById('summaryTitle')?.value || '';
+    const now = new Date();
+    let newItem = null;
     
     try {
-        // 实际项目中调用API
-        // await summaryApi.create({ type, ...data });
+        switch (type) {
+            case 'papers':
+            case 'submissions': {
+                const title = document.getElementById('summaryTitle').value;
+                const author = document.getElementById('summaryAuthor').value;
+                const journal = document.getElementById('summaryJournal').value;
+                newItem = {
+                    id: generateId(),
+                    title,
+                    author,
+                    journal,
+                    date: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
+                    status: type === 'papers' ? 'published' : 'under_review',
+                };
+                break;
+            }
+            case 'articles': {
+                const title = document.getElementById('summaryTitle').value;
+                const author = document.getElementById('summaryAuthor').value;
+                const platform = document.getElementById('summaryPlatform').value;
+                newItem = {
+                    id: generateId(),
+                    title,
+                    author,
+                    platform,
+                    date: now.toISOString(),
+                    views: 0,
+                };
+                break;
+            }
+            case 'literature': {
+                const title = document.getElementById('summaryTitle').value;
+                const category = document.getElementById('summaryCategory').value;
+                const count = Number(document.getElementById('summaryCount').value) || 0;
+                const note = document.getElementById('summaryNote').value;
+                newItem = {
+                    id: generateId(),
+                    title,
+                    category,
+                    count,
+                    note,
+                    date: now.toISOString(),
+                };
+                break;
+            }
+            case 'theory': {
+                const name = document.getElementById('summaryName').value;
+                const field = document.getElementById('summaryField').value;
+                const definition = document.getElementById('summaryDefinition').value;
+                const applicationsStr = document.getElementById('summaryApplications').value || '';
+                const applications = applicationsStr
+                    .split(',')
+                    .map(item => item.trim())
+                    .filter(Boolean);
+                newItem = {
+                    id: generateId(),
+                    name,
+                    field,
+                    definition,
+                    applications,
+                    date: now.toISOString(),
+                };
+                break;
+            }
+        }
         
-        // 模拟创建成功
+        if (!newItem) {
+            showToast('提交失败，请重试', 'error');
+            return;
+        }
+        
+        summariesState.summaries[type].unshift(newItem);
+        saveSummariesToStorage();
+        summariesState.activeTab = type;
+        document.querySelectorAll('.summary-tabs .tab-btn').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === type);
+        });
         closeModal();
+        renderSummaries();
         showToast('创建成功', 'success');
-        loadSummaries();
     } catch (error) {
         showToast('创建失败，请重试', 'error');
     }
