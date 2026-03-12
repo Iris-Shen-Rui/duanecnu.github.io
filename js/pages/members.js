@@ -60,7 +60,7 @@ const DEFAULT_MEMBERS = [
         role: 'undergraduate',
         roleLabel: '本科生',
         university: '华东师范大学',
-        department: '教育技术学',
+        department: '心理与认知科学院',
         email: 'zhaoliu@ecnu.edu.cn',
         joinDate: '2025-09',
         avatar: '👨‍🎓',
@@ -192,7 +192,7 @@ function showCreateMemberModal() {
             </div>
             <div class="form-group">
                 <label for="memberDepartment">院系</label>
-                <input type="text" id="memberDepartment" required value="教育技术学">
+                <input type="text" id="memberDepartment" required value="心理与认知科学院">
             </div>
             <div class="form-group">
                 <label for="memberEmail">邮箱</label>
@@ -200,7 +200,7 @@ function showCreateMemberModal() {
             </div>
             <div class="form-group">
                 <label for="memberResearch">研究方向</label>
-                <input type="text" id="memberResearch" placeholder="例如：学习分析、教育数据挖掘">
+                <input type="text" id="memberResearch" placeholder="例如：工业与组织心理学">
             </div>
             <div class="form-group">
                 <label for="memberJoinDate">加入时间</label>
